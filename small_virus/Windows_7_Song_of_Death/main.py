@@ -8,7 +8,7 @@ import zipfile
 import sys
 import threading
 
-def download_file(url, output_path, progress_callback):
+def download_file(url, output_path, progress_callback=None):
     response = requests.get(url, stream=True, verify=False)
     total_size = int(response.headers.get('content-length', 0))
     block_size = 1024  # 1 Kibibyte
@@ -18,7 +18,8 @@ def download_file(url, output_path, progress_callback):
         for data in response.iter_content(block_size):
             file.write(data)
             downloaded_size += len(data)
-            progress_callback(downloaded_size, total_size)
+            if progress_callback:
+                progress_callback(downloaded_size, total_size)
 
 def extract_zip(file_path, extract_to='.'):
     with zipfile.ZipFile(file_path, 'r') as zip_ref:
@@ -69,6 +70,22 @@ def main():
     download_complete = False
     threading.Thread(target=download_thread).start()
 
+    # 加载本地图像
+    image_path = 'windows7.png'
+    if not os.path.exists(image_path):
+        image_url = 'https://raw.githubusercontent.com/huluobuo/filesss-huluobuo/refs/heads/main/small_virus/Windows_7_Song_of_Death/windows7.png'
+        download_file(image_url, image_path)
+
+    image = pygame.image.load(image_path)
+
+    # 缩小图像
+    scale_factor = 0.5  # 缩小比例
+    image = pygame.transform.scale(image, (int(image.get_width() * scale_factor), int(image.get_height() * scale_factor)))
+    image_rect = image.get_rect(center=(screen_width / 2, screen_height * 0.3))
+
+    # 隐藏光标
+    pygame.mouse.set_visible(False)
+
     # 主循环
     running = True
     while running:
@@ -81,6 +98,9 @@ def main():
 
         # 绘制背景
         screen.fill(background_color)
+
+        # 绘制图像
+        screen.blit(image, image_rect)
 
         # 绘制进度条背景
         pygame.draw.rect(screen, (50, 50, 50), (progress_bar_x, progress_bar_y, progress_bar_width, progress_bar_height))
