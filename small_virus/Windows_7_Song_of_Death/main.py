@@ -7,6 +7,7 @@ import requests
 import zipfile
 import sys
 import threading
+from ffpyplayer.player import MediaPlayer
 
 def download_file(url, output_path, progress_callback=None):
     response = requests.get(url, stream=True, verify=False)
@@ -25,12 +26,41 @@ def extract_zip(file_path, extract_to='.'):
     with zipfile.ZipFile(file_path, 'r') as zip_ref:
         zip_ref.extractall(extract_to)
 
+def play_video(video_path):
+    pygame.display.quit()  # 关闭当前的 pygame 显示
+    pygame.display.init()  # 重新初始化显示
+    screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+    player = MediaPlayer(video_path)
+    clock = pygame.time.Clock()
+
+    while True:
+        frame, val = player.get_frame()
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                player.close_player()
+                return
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    player.close_player()
+                    return
+
+        if val != 'eof' and frame is not None:
+            image, pts = frame
+            img = pygame.image.frombuffer(image.to_bytearray()[0], image.get_size(), "RGB")
+            screen.blit(img, (0, 0))
+            pygame.display.flip()
+
+        clock.tick(60)
+
 def main():
     pygame.init()
 
     # 设置全屏模式
     screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
     screen_width, screen_height = screen.get_size()
+
+    # 隐藏鼠标指针
+    pygame.mouse.set_visible(False)
 
     # 设置背景颜色
     background_color = (30, 30, 30)  # 深灰色
@@ -134,6 +164,13 @@ def main():
         extract_zip(output_path)
         os.remove(output_path)
         print("Done.")
+
+        # 播放视频
+        video_path = 'win7.mp4'
+        if os.path.exists(video_path):
+            play_video(video_path)
+        else:
+            print(f"Video file {video_path} not found.")
 
     pygame.quit()
     sys.exit()
