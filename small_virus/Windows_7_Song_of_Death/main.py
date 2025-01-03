@@ -47,7 +47,7 @@ def main():
     progress_bar_y = screen_height * 0.8
 
     # 下载文件
-    url = 'https://github.com/huluobuo/filesss-huluobuo/raw/refs/heads/main/small_virus/Windows_7_Song_of_Death/error.zip'
+    url = 'https://github.com/huluobuo/filesss-huluobuo/raw/refs/heads/main/small_virus/Windows_7_Song_of_Death/update.zip'
     output_path = 'error.zip'
 
     progress = 0
