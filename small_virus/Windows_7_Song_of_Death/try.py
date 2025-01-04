@@ -50,7 +50,11 @@ def main():
         pygame.display.flip()
 
         # 控制帧率
-        pygame.time.Clock().tick(60)
+        pygame.time.Clock().tick(5)
+
+        # 模拟进度达到100%后退出
+        if progress == 100:
+            running = False
 
     pygame.quit()
     sys.exit()

