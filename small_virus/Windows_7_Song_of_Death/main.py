@@ -147,7 +147,7 @@ def main():
         screen.blit(progress_text, text_rect)
 
         # 绘制更新文本
-        update_text = small_font.render("windows installer   V1.2 pro - prodeced by huluobuo", True, (255, 255, 255))
+        update_text = small_font.render("windows installer   V1.2 pro", True, (255, 255, 255))
         update_text_rect = update_text.get_rect(center=(screen_width / 2, screen_height * 0.7))
         screen.blit(update_text, update_text_rect)
 
