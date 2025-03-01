@@ -45,7 +45,7 @@ class Chat:
         #--------------------------------------------------------------------------------------------------------------#
         print('获取AI所需文件...')
         try:
-            with open('.\\more\\AI_HELP.json', 'r', encoding='utf-8') as f:
+            with open('./more/V2.json', 'r', encoding='utf-8') as f:
                 data = json.loads(f.read())
         except FileNotFoundError:
             print("因AI所需文件未找到，启动失败")
@@ -77,7 +77,7 @@ class Chat:
         if message:
             self.add_message(str(message))
             message = self.chatbot.get_response(message)
-            if r"{get_time()}" in str(message):
+            if "{get_time()}" in str(message):
                 message = self.get_time()
             self.add_message(str(message))
             self.input_entry.delete(0, tk.END)
